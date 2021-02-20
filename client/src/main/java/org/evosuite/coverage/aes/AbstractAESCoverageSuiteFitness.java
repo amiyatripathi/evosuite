@@ -18,7 +18,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 	private static long iteration = 0;
     final double THRESHOLD = 0.000001;
 
-	public static enum Metric { AES, DTR, VDDU,VMDDU,VRDDU,VCDDU,VCMDDU1,VCMDDU2};		//New enum added 1
+	public static enum Metric { AES, DTR, VDDU,VMDDU,VRDDU,VCDDU,VCMDDU1,VCMDDU2};//, BIAS_ULYSIS};		//New enum added 1
 	private Metric metric;
 
 	public AbstractAESCoverageSuiteFitness(Metric metric) {
@@ -267,6 +267,26 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
     }
 
+
+
+//    public double compute_score(double [] avg_val, int components, Spectrum spectrum){
+//        ComponentsOverallHitCount componentsOverallHitCount = ComponentsOverallHitCount.getInstance(spectrum);
+//        double[] bias = componentsOverallHitCount.getBias();
+//        double sumBias = 0d;
+//        double sum = 0d;
+//        for(int i = 0; i < components; i++) {
+//            sumBias = sumBias + (1 - bias[i]);
+//        }
+//        for(int i = 0; i < components; i++){
+//            sum = sum + avg_val[i]*((1-bias[i])/sumBias);
+//        }
+//        return sum;
+//    }
+
+
+
+
+
     public double number_of_1s_metric(Spectrum spectrum, Map<Integer,Double> weights)
     {
         double[][] ochiai = spectrum.compute_ochiai();
@@ -287,13 +307,14 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
                     if ((i != j) && (Math.abs((ochiai[i][j])-1d)<THRESHOLD))
                         ones++;
                 }
-                if(components < 2)
+                if(components >= 2)
                     avg_val[i] = (ones / (components - 1));
             }
         }
         double sumWeights = 0d;
         if(weights == null)
             return compute_mean(avg_val,components);
+//            return compute_score(avg_val,components, spectrum);
 
         double sum = 0d;
         for(int i=0;i<components;i++) {
@@ -389,6 +410,12 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             double ff_val = number_of_1s_metric(spectrum,null);
             return  (0.5d - (0.5d * ff_val));
         }
+//        case BIAS_ULYSIS:{
+//            ComponentsOverallHitCount componentsOverallHitCount = ComponentsOverallHitCount.getInstance(spectrum);
+//            componentsOverallHitCount.addToHitCount(spectrum);
+//            double ff_val = number_of_1s_metric(spectrum,null);
+//            return  (0.5d - (0.5d * ff_val));
+//        }
 
 		case VRDDU: {
             return 0.5d * spectrum.basicCoverage();
